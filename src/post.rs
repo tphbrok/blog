@@ -15,18 +15,19 @@ impl Post {
 
         let mut metadata: HashMap<String, String> = HashMap::new();
 
-        let mut metadata_lines = lines.iter().enumerate().filter_map(|(position, line)| {
-            if *line == "---" {
-                return Some(position);
-            }
+        let mut metadata_boundary_indices =
+            lines.iter().enumerate().filter_map(|(position, line)| {
+                if *line == "---" {
+                    return Some(position);
+                }
 
-            None
-        });
+                None
+            });
 
-        let metadata_start_line_index = metadata_lines.next();
+        let metadata_start_line_index = metadata_boundary_indices.next();
 
         if let Some(metadata_start_line_index) = metadata_start_line_index {
-            let metadata_end_line_index = metadata_lines
+            let metadata_end_line_index = metadata_boundary_indices
                 .next()
                 .expect("Could not find metadata end (---)");
 
@@ -47,6 +48,7 @@ impl Post {
                 metadata.insert(key.trim().to_string(), value.trim().to_string());
             }
 
+            // Remove metadata lines
             lines = lines
                 .split_at(metadata_end_line_index)
                 .1
