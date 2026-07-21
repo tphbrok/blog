@@ -1,13 +1,14 @@
 use std::{collections::HashMap, fs, path};
 
 pub struct Post {
-    pub metadata: HashMap<String, String>,
+    pub path: path::PathBuf,
     pub lines: Vec<String>,
+    pub metadata: HashMap<String, String>,
 }
 
 impl Post {
     pub fn from_path(path: path::PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut lines: Vec<String> = fs::read_to_string(path)?
+        let mut lines: Vec<String> = fs::read_to_string(path.clone())?
             .split("\n")
             .filter(|line| line.len() > 0)
             .map(|line| line.to_string())
@@ -59,6 +60,16 @@ impl Post {
                 .to_vec();
         }
 
-        Ok(Post { lines, metadata })
+        Ok(Post {
+            lines,
+            metadata,
+            path,
+        })
+    }
+
+    pub fn render_to_file(self) -> Result<String, Box<dyn std::error::Error>> {
+        let output_path = format!("site/{}", self.path.to_string_lossy());
+
+        Ok(output_path)
     }
 }
