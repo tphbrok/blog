@@ -9,6 +9,7 @@ This repository houses all files needed to build my blog, available at [tphbrok.
 - To practice writing, because I feel like writing is slowly becoming a lost art these days (where using AI to write or rephrase something you wrote is so accessible)
 - To move my thoughts out of my head into some other place, because my self-knowledge and life experience has taught me that my head is made for thinking, not for remembering
 - To practice some web development goals, e.g. minimizing the amount of JavaScript needed, or integrating tightly with the ginormous amount of features that all browsers offer out-of-the-box
+- To get better at writing Rust code
 
 ## How does it work?
 
