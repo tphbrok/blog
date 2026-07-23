@@ -4,7 +4,6 @@ use crate::template::wrap_in_template;
 
 pub struct Post {
     pub date: String,
-    pub path: path::PathBuf,
     pub lines: Vec<String>,
     pub metadata: HashMap<String, String>,
     pub slug: String,
@@ -97,7 +96,6 @@ impl Post {
             date,
             lines,
             metadata,
-            path,
             slug,
             title,
         })
