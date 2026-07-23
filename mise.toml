@@ -1,5 +1,9 @@
 [tools]
 rust = "1.97.1"
+watchexec = "2.5.1"
 
 [tasks.export]
 run = "cargo run"
+
+[tasks.watch]
+run = "watchexec -f src/**/* -f posts/** mise export"

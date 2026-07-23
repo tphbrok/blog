@@ -1,0 +1,112 @@
+<html>
+  <head>
+    <title>{{title}}</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --color-primary: rgb(194, 104, 1);
+        --color-black: rgb(39, 39, 35);
+        --color-white: rgb(240, 240, 225);
+      }
+
+      @media (prefers-color-scheme: light) {
+        body {
+          background-color: var(--color-white);
+          color: var(--color-black);
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: var(--color-black);
+          color: var(--color-white);
+        }
+      }
+
+      a {
+        color: var(--color-primary);
+      }
+
+      body {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          sans-serif,
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          Segoe UI Symbol,
+          "Noto Color Emoji";
+
+        max-width: 960px;
+        padding: 0 16px;
+        margin: 0 auto;
+        font-size: 16px;
+      }
+
+      body > * {
+        margin: 16px 0;
+        padding-bottom: 16px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      header > span {
+        padding-bottom: 0;
+        font-weight: bold;
+      }
+
+      p,
+      h2 {
+        margin-bottom: 32px;
+      }
+
+      p {
+        line-height: 28px;
+      }
+
+      h1 {
+        font-size: 36px;
+        letter-spacing: -1px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .categories {
+        list-style: none;
+        display: flex;
+        column-gap: 8px;
+        padding-left: 0;
+        align-items: center;
+        font-size: 14px;
+        margin-bottom: 32px;
+      }
+
+      .categories > li {
+        background-color: rgb(from var(--color-primary) r g b / 75%);
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+
+      .title:has(+ .categories) {
+        margin-bottom: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span>tphbrok.me</span>
+      <nav>
+        <a href="/posts">Posts</a>
+      </nav>
+    </header>
+
+    <main>
+      <article>{{post}}</article>
+    </main>
+  </body>
+</html>

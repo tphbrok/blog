@@ -4,6 +4,7 @@ pub struct Post {
     pub path: path::PathBuf,
     pub lines: Vec<String>,
     pub metadata: HashMap<String, String>,
+    pub slug: String,
 }
 
 impl Post {
@@ -60,15 +61,102 @@ impl Post {
                 .to_vec();
         }
 
+        let slug = path
+            .clone()
+            .file_name()
+            .expect("Could not get filename from path")
+            .to_string_lossy()
+            .split_at(11)
+            .1
+            .to_string()
+            .split(".")
+            .take_while(|word| *word != "md")
+            .collect::<Vec<&str>>()
+            .join("");
+
         Ok(Post {
             lines,
             metadata,
             path,
+            slug,
         })
     }
 
-    pub fn render_to_file(self) -> Result<String, Box<dyn std::error::Error>> {
-        let output_path = format!("site/{}", self.path.to_string_lossy());
+    pub fn render_to_file(&self) -> Result<String, Box<dyn std::error::Error>> {
+        let input_path = self.path.clone();
+        let input_filename = input_path
+            .file_name()
+            .expect("Could not get filename from path")
+            .to_string_lossy();
+
+        let output_filename = input_filename.replace(".md", ".html");
+        let output_path = format!("site/posts/{}", output_filename);
+
+        fs::create_dir_all("site/posts")?;
+
+        let template = fs::read_to_string("src/template.html")?;
+
+        let title_line = self
+            .lines
+            .iter()
+            .find(|line| line.starts_with("# "))
+            .expect("Could not find title line (containg '# ')");
+
+        let title = title_line.replace("# ", "");
+
+        let formatted_lines = self
+            .lines
+            .iter()
+            .map(|line| {
+                let mut line = line.clone();
+
+                if line.starts_with("# ") {
+                    line = line.replace("# ", "");
+                    line.insert_str(0, "<h1 class=\"title\">");
+                    line.push_str("</h1>");
+
+                    let metadata_category = &self.metadata.iter().find(|item| item.0 == "category");
+
+                    if let Some(metadata_category) = metadata_category {
+                        line.push_str("<ul class=\"categories\">Categories: ");
+
+                        metadata_category
+                            .1
+                            .split(",")
+                            .map(|category| category.trim())
+                            .for_each(|category| {
+                                line.push_str("<li>");
+                                line.push_str(category);
+                                line.push_str("</li>");
+                            });
+
+                        line.push_str("</ul>");
+                    }
+                } else if line.starts_with("## ") {
+                    line = line.replace("## ", "");
+                    line.insert_str(0, "<h2>");
+                    line.push_str("</h2>");
+                } else {
+                    line.insert_str(0, "<p>");
+                    line.push_str("</p>");
+                }
+
+                line = line.replace(" __", " <b>");
+                line = line.replace("__", "</b>");
+
+                line = line.replace(" _", " <i>");
+                line = line.replace("_", "</i>");
+
+                line
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        let content = template
+            .replace("{{post}}", formatted_lines.as_str())
+            .replace("{{title}}", format!("{} - tphbrok.me", title).as_str());
+
+        fs::write(output_path.clone(), content)?;
 
         Ok(output_path)
     }
