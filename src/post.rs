@@ -104,8 +104,6 @@ impl Post {
     pub fn render_to_file(&self) -> Result<String, Box<dyn std::error::Error>> {
         let output_path = format!("docs/{}", self.slug);
 
-        fs::create_dir_all("docs")?;
-
         let title_line = self
             .lines
             .iter()

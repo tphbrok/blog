@@ -8,6 +8,11 @@ use crate::{post::Post, template::wrap_in_template};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut posts: Vec<Post> = vec![];
 
+    fs::remove_dir_all("docs")?;
+    fs::create_dir("docs")?;
+
+    fs::write("docs/CNAME", "tphbrok.me")?;
+
     for post in fs::read_dir("posts")? {
         let post = Post::from_path(post?.path().clone())?;
 
