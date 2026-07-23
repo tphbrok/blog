@@ -2,7 +2,7 @@
 
 This repository houses all files needed to build my blog, available at [tphbrok.me](https://tphbrok.me).
 
-I'm well aware that the Rust code to produce the output files of this blog (living in `site/`) might be considered sub-optimal (or even ugly), but _it works_. As the blog evolves, so will the code to produce it, where I hope it'll be a rather pristine codebase in the far future.
+It's a Rust program that converts a bunch of Markdown files (in `posts/`) to a bunch of HTML files (in `site/`). I could've used some random existing static site generator, but where's the fun in that?!
 
 ## Why run a blog?
 
