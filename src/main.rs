@@ -8,10 +8,8 @@ use crate::{post::Post, template::wrap_in_template};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut posts: Vec<Post> = vec![];
 
-    fs::remove_dir_all("docs")?;
-    fs::create_dir("docs")?;
-
-    fs::write("docs/CNAME", "tphbrok.me")?;
+    fs::remove_dir_all("site")?;
+    fs::create_dir("site")?;
 
     for post in fs::read_dir("posts")? {
         let post = Post::from_path(post?.path().clone())?;
@@ -46,7 +44,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     homepage_content.push_str("</ul><a href=\"posts\">View all posts &rarr;</a>");
 
     let homepage_output = wrap_in_template(homepage_content, String::from("Home"));
-    let homepage_output_path = "docs/index.html";
+    let homepage_output_path = "site/index.html";
 
     fs::write(homepage_output_path, homepage_output)?;
 
@@ -76,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let posts_output = wrap_in_template(posts_content, String::from("Posts"));
-    let posts_output_path = "docs/posts";
+    let posts_output_path = "site/posts";
 
     fs::write(posts_output_path, posts_output)?;
 

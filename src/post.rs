@@ -102,7 +102,7 @@ impl Post {
     }
 
     pub fn render_to_file(&self) -> Result<String, Box<dyn std::error::Error>> {
-        let output_path = format!("docs/{}", self.slug);
+        let output_path = format!("site/{}", self.slug);
 
         let title_line = self
             .lines
