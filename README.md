@@ -2,7 +2,7 @@
 
 This repository houses all files needed to build my blog, available at [tphbrok.me](https://tphbrok.me).
 
-It's a Rust program that converts a bunch of Markdown files (in `posts/`) to a bunch of HTML files (in `docs/`). I could've used some random existing static site generator, but where's the fun in that?!
+It's a Rust program that converts a bunch of Markdown files (in `posts/`) to a bunch of HTML files (in `docs/`, because GitHub Pages requires either `/` or `docs/` as a source directory). I could've used some random existing static site generator, but where's the fun in that?!
 
 ## Why run a blog?
 
