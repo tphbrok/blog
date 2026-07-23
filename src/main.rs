@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     homepage_content.push_str("</ul><a href=\"posts\">View all posts &rarr;</a>");
 
     let homepage_output = wrap_in_template(homepage_content, String::from("Home"));
-    let homepage_output_path = "site/index.html";
+    let homepage_output_path = "docs/index.html";
 
     fs::write(homepage_output_path, homepage_output)?;
 
@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let posts_output = wrap_in_template(posts_content, String::from("Posts"));
-    let posts_output_path = "site/posts";
+    let posts_output_path = "docs/posts";
 
     fs::write(posts_output_path, posts_output)?;
 
