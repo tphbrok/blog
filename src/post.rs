@@ -1,10 +1,14 @@
 use std::{collections::HashMap, fs, path};
 
+use crate::template::wrap_in_template;
+
 pub struct Post {
+    pub date: String,
     pub path: path::PathBuf,
     pub lines: Vec<String>,
     pub metadata: HashMap<String, String>,
     pub slug: String,
+    pub title: String,
 }
 
 impl Post {
@@ -74,27 +78,35 @@ impl Post {
             .collect::<Vec<&str>>()
             .join("");
 
+        let date = path
+            .clone()
+            .file_name()
+            .expect("Could not get filename from path")
+            .to_string_lossy()
+            .split_at(10)
+            .0
+            .to_string();
+
+        let title = lines
+            .iter()
+            .find(|line| line.starts_with("# "))
+            .expect("Could not find title line (containg '# ')")
+            .replace("# ", "");
+
         Ok(Post {
+            date,
             lines,
             metadata,
             path,
             slug,
+            title,
         })
     }
 
     pub fn render_to_file(&self) -> Result<String, Box<dyn std::error::Error>> {
-        let input_path = self.path.clone();
-        let input_filename = input_path
-            .file_name()
-            .expect("Could not get filename from path")
-            .to_string_lossy();
+        let output_path = format!("site/{}", self.slug);
 
-        let output_filename = input_filename.replace(".md", ".html");
-        let output_path = format!("site/posts/{}", output_filename);
-
-        fs::create_dir_all("site/posts")?;
-
-        let template = fs::read_to_string("src/template.html")?;
+        fs::create_dir_all("site")?;
 
         let title_line = self
             .lines
@@ -102,9 +114,7 @@ impl Post {
             .find(|line| line.starts_with("# "))
             .expect("Could not find title line (containg '# ')");
 
-        let title = title_line.replace("# ", "");
-
-        let formatted_lines = self
+        let mut formatted_lines = self
             .lines
             .iter()
             .map(|line| {
@@ -152,11 +162,12 @@ impl Post {
             .collect::<Vec<String>>()
             .join("\n");
 
-        let content = template
-            .replace("{{post}}", formatted_lines.as_str())
-            .replace("{{title}}", format!("{} - tphbrok.me", title).as_str());
+        formatted_lines.insert_str(0, "<article>");
+        formatted_lines.push_str("</article>");
 
-        fs::write(output_path.clone(), content)?;
+        let output = wrap_in_template(formatted_lines, title_line.replace("# ", ""));
+
+        fs::write(output_path.clone(), output)?;
 
         Ok(output_path)
     }
