@@ -14,20 +14,12 @@
           background-color: var(--color-white);
           color: var(--color-black);
         }
-
-        .categories > li {
-          color: var(--color-white);
-        }
       }
 
       @media (prefers-color-scheme: dark) {
         body {
           background-color: var(--color-black);
           color: var(--color-white);
-        }
-
-        .categories > li {
-          color: var(--color-black);
         }
       }
 
@@ -106,6 +98,7 @@
         background-color: rgb(from var(--color-primary) r g b / 75%);
         padding: 3px 6px;
         border-radius: 6px;
+        color: var(--color-white);
       }
 
       .title:has(+ .categories) {
@@ -116,7 +109,7 @@
         font-size: 48px;
       }
 
-      li {
+      .posts-list li {
         margin-bottom: 8px;
       }
     </style>
@@ -126,6 +119,6 @@
       <span><a class="header" href="index.html">tphbrok.me</a></span>
     </header>
 
-    <main><h1>Posts</h1><h2 class="posts-year">2026</h2><ul><li><a href="choose-your-forever-game">Choose your forever game</a> (2026-07-21)</li></ul></main>
+    <main><h1>Posts</h1><h2 class="posts-year">2026</h2><ul class="posts-list"><li><a href="choose-your-forever-game.html">Choose your forever game</a> (2026-07-21)</li></ul></main>
   </body>
 </html>

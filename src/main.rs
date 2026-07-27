@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     homepage_content.push_str(
         "<h1 class=\"name\">Thomas Brok</h1><p>I'm a Dutch developer, powered by Axxes.<br><br>I spend my professional time writing TypeScript and deploying to AWS, with coding agents as my sidekicks. I spend my free time writing plain text and Rust <i>without</i> AI (because I'm in it for learning and general enjoyment of programming).<br><br>Whenever I'm not spending time with my family and friends, I produce music, play videogames and read paper books.");
 
-    homepage_content.push_str("<h1>Latest posts</h1><ul>");
+    homepage_content.push_str("<h1>Latest posts</h1><ul class=\"posts-list\">");
 
     posts.sort_by_key(|post| post.date.clone());
     posts.reverse();
@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     posts.iter().take(5).for_each(|post| {
         homepage_content.push_str(
             format!(
-                "<li><a href=\"{}\">{}</a> ({})</li>",
+                "<li><a href=\"{}.html\">{}</a> ({})</li>",
                 post.slug, post.title, post.date
             )
             .as_str(),
@@ -58,12 +58,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     posts_per_year.for_each(|posts| {
         let year = posts[0].date.split_at(4).0;
 
-        posts_content.push_str(format!("<h2 class=\"posts-year\">{}</h2><ul>", year).as_str());
+        posts_content.push_str(
+            format!(
+                "<h2 class=\"posts-year\">{}</h2><ul class=\"posts-list\">",
+                year
+            )
+            .as_str(),
+        );
 
         posts.iter().for_each(|post| {
             posts_content.push_str(
                 format!(
-                    "<li><a href=\"{}\">{}</a> ({})</li>",
+                    "<li><a href=\"{}.html\">{}</a> ({})</li>",
                     post.slug, post.title, post.date
                 )
                 .as_str(),
@@ -74,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let posts_output = wrap_in_template(posts_content, String::from("Posts"));
-    let posts_output_path = "site/posts";
+    let posts_output_path = "site/posts.html";
 
     fs::write(posts_output_path, posts_output)?;
 
