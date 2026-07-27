@@ -6,4 +6,4 @@ watchexec = "2.5.1"
 run = "cargo run"
 
 [tasks.watch]
-run = "watchexec -i \"target/**\" -i \"site/**\" mise export"
+run = "watchexec -w posts -w src -- mise export"
