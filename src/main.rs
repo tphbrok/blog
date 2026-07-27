@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut homepage_content = String::new();
 
     homepage_content.push_str(
-        "<h1 class=\"name\">Thomas Brok</h1><p>I'm a Dutch developer, powered by Axxes.<br><br>I spend my professional time writing TypeScript and deploying to AWS (with coding agents as my sidekicks).I spend my free time writing plain text and Rust <i>without</i> AI (because I'm in it for learning and general enjoyment of programming, not just output).<br><br>Whenever I'm not spending time with my family, I produce music, play games and read.");
+        "<h1 class=\"name\">Thomas Brok</h1><p>I'm a Dutch developer, powered by Axxes.<br><br>I spend my professional time writing TypeScript and deploying to AWS, with coding agents as my sidekicks. I spend my free time writing plain text and Rust <i>without</i> AI (because I'm in it for learning and general enjoyment of programming).<br><br>Whenever I'm not spending time with my family and friends, I produce music, play videogames and read paper books.");
 
     homepage_content.push_str("<h1>Latest posts</h1><ul>");
 
