@@ -103,11 +103,15 @@ impl Post {
             .find(|line| line.starts_with("# "))
             .expect("Could not find title line (containg '# ')");
 
+        let mut currently_in_list = false;
+
         let mut formatted_lines = self
             .lines
             .iter()
             .map(|line| {
                 let mut line = line.clone();
+
+                let should_close_ul = !line.starts_with("- ") && currently_in_list;
 
                 if line.starts_with("# ") {
                     line = line.replace("# ", "");
@@ -131,6 +135,17 @@ impl Post {
 
                         line.push_str("</ul>");
                     }
+                } else if line.starts_with("- ") {
+                    line = line.replace("- ", "");
+
+                    line.insert_str(0, "<li>");
+                    line.push_str("</li>");
+
+                    if currently_in_list == false {
+                        currently_in_list = true;
+
+                        line.insert_str(0, "<ul class=\"posts-list\">");
+                    }
                 } else if line.starts_with("## ") {
                     line = line.replace("## ", "");
                     line.insert_str(0, "<h2>");
@@ -138,6 +153,10 @@ impl Post {
                 } else {
                     line.insert_str(0, "<p>");
                     line.push_str("</p>");
+
+                    if should_close_ul {
+                        line.insert_str(0, "</ul>");
+                    }
                 }
 
                 line = line.replace(" __", " <b>");
