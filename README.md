@@ -1,6 +1,6 @@
 # Blog
 
-This repository houses all files needed to build my blog, available at [tphbrok.me](https://tphbrok.me).
+This repository houses all files needed to build my blog, available at [tphbrok.me](https://blog.tphbrok.me).
 
 It's a Rust program that converts a bunch of Markdown files (in `posts/`) to a bunch of HTML files (in `site/`). I could've used some random existing static site generator, but where's the fun in that?
 
