@@ -1,5 +1,6 @@
 ---
 category: Gaming, Thoughts
+date: 2026-07-21
 ---
 
 # Choose your forever game

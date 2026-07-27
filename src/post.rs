@@ -69,22 +69,15 @@ impl Post {
             .file_name()
             .expect("Could not get filename from path")
             .to_string_lossy()
-            .split_at(11)
-            .1
-            .to_string()
             .split(".")
             .take_while(|word| *word != "md")
             .collect::<Vec<&str>>()
             .join("");
 
-        let date = path
-            .clone()
-            .file_name()
-            .expect("Could not get filename from path")
-            .to_string_lossy()
-            .split_at(10)
-            .0
-            .to_string();
+        let date = metadata
+            .get("date")
+            .expect("Could not get date from metadata")
+            .to_owned();
 
         let title = lines
             .iter()
