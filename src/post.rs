@@ -10,6 +10,10 @@ pub struct Post {
     pub title: String,
 }
 
+/**
+ * TODO:
+ * - Make process more forgiving (by not having 'expect's everywhere)
+ */
 impl Post {
     pub fn from_path(path: path::PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
         let mut lines: Vec<String> = fs::read_to_string(path.clone())?
