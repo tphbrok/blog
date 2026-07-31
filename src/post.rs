@@ -115,6 +115,9 @@ impl Post {
             .map(|line| {
                 let mut line = line.clone();
 
+                line = replace_styling_with_tags(line, "**", "b");
+                line = replace_styling_with_tags(line, "_", "i");
+
                 let should_close_ul = !line.starts_with("- ") && currently_in_list;
 
                 if line.starts_with("# ") {
@@ -163,12 +166,6 @@ impl Post {
                     }
                 }
 
-                line = line.replace(" __", " <b>");
-                line = line.replace("__", "</b>");
-
-                line = line.replace(" _", " <i>");
-                line = line.replace("_", "</i>");
-
                 line
             })
             .collect::<Vec<String>>()
@@ -183,4 +180,23 @@ impl Post {
 
         Ok(output_path)
     }
+}
+
+fn replace_styling_with_tags(line: String, source: &str, target: &str) -> String {
+    let parts = line.split(source);
+    let parts_len = parts.clone().collect::<Vec<&str>>().len();
+
+    parts
+        .enumerate()
+        .map(|(index, part)| {
+            if index == parts_len - 1 {
+                format!("{}", part)
+            } else if index % 2 == 0 {
+                format!("{}<{}>", part, target)
+            } else {
+                format!("{}</{}>", part, target)
+            }
+        })
+        .collect::<Vec<String>>()
+        .join("")
 }
