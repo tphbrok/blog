@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Home - tphbrok.me</title>
+    <title>audiodevlog 002: Project refinements - tphbrok.me</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -170,6 +170,17 @@
       <span><a class="header" href="/">tphbrok.me</a></span>
     </header>
 
-    <main><h1 class="name">Thomas Brok</h1><p>I'm a Dutch developer, powered by Axxes.<br><br>I spend my professional time writing TypeScript and deploying to AWS, with coding agents as my sidekicks. I spend my free time writing plain text and Rust <i>without</i> AI (because I'm in it for learning and general enjoyment of programming).<br><br>Whenever I'm not spending time with my family and friends, I produce music, play videogames and read paper books.<h1>Latest posts</h1><ul class="posts-list"><li><a href="audiodevlog-2.html">audiodevlog 002: Project refinements</a> (2026-07-30)</li><li><a href="change-of-scenery-change-of-mind.html">Change of scenery, change of mind</a> (2026-07-29)</li><li><a href="audiodevlog-1.html">audiodevlog 001: Introduction</a> (2026-07-27)</li><li><a href="choose-your-forever-game.html">Choose your forever game</a> (2026-07-21)</li></ul><a href="posts">View all posts &rarr;</a></main>
+    <main><article><h1 class="title">audiodevlog 002: Project refinements</h1><section id="metadata"><span>Published: 2026-07-30</span><span><ul class="categories">Categories: <li>Audio software</li></ul></span></section>
+<p>Whenever I want to figure something out, I purposefully <i>do not</i> actively try to figure it out. Just gathering some information and requirements, and then letting it marinate in my mind works best for me. This method has worked miracles for me for music production, where I sometimes managed to think through an entire musical piece before even creating the project file.</p>
+<p>I followed the same process here, and I came to the following first project:</p>
+<p><b>Write a Rust DSP library from scratch, to learn about DSP and to only have to write it <i>once</i> (because I'd want to use this library in other audio software I'll create in the future)</b></p>
+<p>It'll contain:</p>
+<ul class="posts-list"><li>generator functions, e.g. sine, cosine, noise, step, envelope</li>
+<li>stateful oscillator structs</li>
+<li>filter functions</li>
+<li>general DSP utility functions</li>
+<li>... and much more</li>
+</ul><p>If I start with this project (which I probably will not finish before starting a new project), I can skip the non-audio part of audio software of integrating with other existing software (like creating VST plug-ins), while keeping it lightweight on the hardware side (because I can write a DSP library without knowing who will use it and how they'll use it to control their speakers).</p>
+</ul><p>And with this incentive, a new repository was born: <a class="article-link" href="https://github.com/tphbrok/disperse">tphbrok/disperse</a>. I like non-descriptive names that actually came from playing with letters of descriptive names (DSP with Rust &rarr; dsp + rs &rarr; dsprs &rarr; disperse).</p></article></main>
   </body>
 </html>

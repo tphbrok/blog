@@ -86,22 +86,55 @@
 
       .categories {
         list-style: none;
-        display: flex;
-        column-gap: 8px;
+        display: inline-flex;
+        column-gap: 4px;
         padding-left: 0;
         align-items: center;
+        margin: 0px;
+        flex-wrap: wrap;
+        height: fit-content;
+        row-gap: 4px;
+        width: fit-content;
+      }
+
+      #metadata {
         font-size: 14px;
         margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+        flex-wrap: wrap;
+        /* height: fit-content; */
+        padding-top: 16px;
+        row-gap: 8px;
+      }
+
+      #metadata * {
+        white-space: nowrap;
+      }
+
+      #metadata > span {
+        background-color: rgb(from var(--color-primary) r g b / 10%);
+        padding: 6px 10px;
+        border-radius: 10px;
+        height: fit-content;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      #metadata > span:has(.categories) {
+        padding-right: 5px;
       }
 
       .categories > li {
         background-color: rgb(from var(--color-primary) r g b / 75%);
-        padding: 3px 6px;
-        border-radius: 6px;
+        padding: 2px 6px;
+        border-radius: 4px;
         color: var(--color-white);
       }
 
-      .title:has(+ .categories) {
+      .title:has(+ #metadata) {
         margin-bottom: 0px;
       }
 
@@ -121,6 +154,14 @@
       p:has(+ ul) {
         margin-bottom: 0px;
       }
+
+      .article-link::after {
+        content: " ↗";
+        font-size: 14px;
+      }
+
+      #metadata > span {
+      }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
@@ -129,7 +170,7 @@
       <span><a class="header" href="/">tphbrok.me</a></span>
     </header>
 
-    <main><article><h1 class="title">audiodevlog 001: Introduction</h1><ul class="categories">Categories: <li>Audio software</li></ul>
+    <main><article><h1 class="title">audiodevlog 001: Introduction</h1><section id="metadata"><span>Published: 2026-07-27</span><span><ul class="categories">Categories: <li>Audio software</li></ul></span></section>
 <p>Before and next to my current job writing enterprise software, I work as a professional DJ and producer of electronic dance music. Unsurprisingly, balancing the edge between these two career paths has crossed my mind: writing audio software. This varies from actual 'naked' software which directly instructs my speakers to move back and forth, or software which integrates seamlessly with a host (a <i>Digital Audio Workstation</i>, or a DAW) used to arrange and compose music.</p>
 <p>Why not write about the journey while I'm at it!?</p>
 <p>I've had some attempts before, I'll be honest about that. I've dabbled with Steinberg's VST SDK using C++, I've tried to write a bare-bones CLAP plug-in in C and Zig, and I've attempted to use a Rust audio plug-in framework called 'nih-plug' to create an audio plug-in. Creating a full DAW is another thing I tried, and failed at.</p>

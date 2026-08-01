@@ -86,22 +86,55 @@
 
       .categories {
         list-style: none;
-        display: flex;
-        column-gap: 8px;
+        display: inline-flex;
+        column-gap: 4px;
         padding-left: 0;
         align-items: center;
+        margin: 0px;
+        flex-wrap: wrap;
+        height: fit-content;
+        row-gap: 4px;
+        width: fit-content;
+      }
+
+      #metadata {
         font-size: 14px;
         margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+        flex-wrap: wrap;
+        /* height: fit-content; */
+        padding-top: 16px;
+        row-gap: 8px;
+      }
+
+      #metadata * {
+        white-space: nowrap;
+      }
+
+      #metadata > span {
+        background-color: rgb(from var(--color-primary) r g b / 10%);
+        padding: 6px 10px;
+        border-radius: 10px;
+        height: fit-content;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      #metadata > span:has(.categories) {
+        padding-right: 5px;
       }
 
       .categories > li {
         background-color: rgb(from var(--color-primary) r g b / 75%);
-        padding: 3px 6px;
-        border-radius: 6px;
+        padding: 2px 6px;
+        border-radius: 4px;
         color: var(--color-white);
       }
 
-      .title:has(+ .categories) {
+      .title:has(+ #metadata) {
         margin-bottom: 0px;
       }
 
@@ -121,6 +154,14 @@
       p:has(+ ul) {
         margin-bottom: 0px;
       }
+
+      .article-link::after {
+        content: " ↗";
+        font-size: 14px;
+      }
+
+      #metadata > span {
+      }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
@@ -129,7 +170,7 @@
       <span><a class="header" href="/">tphbrok.me</a></span>
     </header>
 
-    <main><article><h1 class="title">Choose your forever game</h1><ul class="categories">Categories: <li>Gaming</li><li>Thoughts</li></ul>
+    <main><article><h1 class="title">Choose your forever game</h1><section id="metadata"><span>Published: 2026-07-21</span><span><ul class="categories">Categories: <li>Gaming</li><li>Thoughts</li></ul></span></section>
 <p>I was born in 1995, which means I spent a good chunk of time during my childhood playing games like <i>GTA San Andreas</i> and most games of the <i>Pokémon</i> franchise. A little later, I was introduced to similar open-world games like <i>RuneScape</i> (which has now become <i>'Old School RuneScape'</i>, which has made me feel very old) and <i>MapleStory</i>. Something about these open-world games was enthralling to me. To the main characters of these games, the tiny world that digitally fit in the palm of my hand was their entire world. And then there was I, controlling their every move from a world much bigger than theirs.</p>
 <p>Being an adult with a child in 2026 doesn't provide that same perspective on games anymore. The wonder I felt as a kid playing a new game just isn't there anymore. I need more than a couple of hands to count the amount of games I bought, started, and left unfinished in the past 5-10 years, which just didn't happen when I was a kid. Shifting priorities and little left-over time are likely the reasons, which I think every similarly aged new parent can agree with. And besides that, which gaming adult has the time and patience (and probably motor skills) to learn new game mechanics and controls every few months? I surely don't!</p>
 <p>Moreover, games are different nowadays. I know it takes some time for games to reach 'legacy status', like <i>GTA San Andreas</i> and <i>Old School RuneScape</i> have, but there are plenty of games that lost popularity as quickly as they gained, whereas the legacy ones never went away. If you browse any streaming platform, you'll see tons of mentions of old <i>GTA</i> or <i>Pokémon</i> titles still being played and vigourously watched. But when was the last time someone mentioned some random decade-old <i>Call of Duty</i> title still being considered 'THE game'? Or some arbitrary <i>Need for Speed</i> title released in the same decade?</p>

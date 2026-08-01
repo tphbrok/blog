@@ -86,22 +86,55 @@
 
       .categories {
         list-style: none;
-        display: flex;
-        column-gap: 8px;
+        display: inline-flex;
+        column-gap: 4px;
         padding-left: 0;
         align-items: center;
+        margin: 0px;
+        flex-wrap: wrap;
+        height: fit-content;
+        row-gap: 4px;
+        width: fit-content;
+      }
+
+      #metadata {
         font-size: 14px;
         margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+        flex-wrap: wrap;
+        /* height: fit-content; */
+        padding-top: 16px;
+        row-gap: 8px;
+      }
+
+      #metadata * {
+        white-space: nowrap;
+      }
+
+      #metadata > span {
+        background-color: rgb(from var(--color-primary) r g b / 10%);
+        padding: 6px 10px;
+        border-radius: 10px;
+        height: fit-content;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      #metadata > span:has(.categories) {
+        padding-right: 5px;
       }
 
       .categories > li {
         background-color: rgb(from var(--color-primary) r g b / 75%);
-        padding: 3px 6px;
-        border-radius: 6px;
+        padding: 2px 6px;
+        border-radius: 4px;
         color: var(--color-white);
       }
 
-      .title:has(+ .categories) {
+      .title:has(+ #metadata) {
         margin-bottom: 0px;
       }
 
@@ -121,6 +154,14 @@
       p:has(+ ul) {
         margin-bottom: 0px;
       }
+
+      .article-link::after {
+        content: " ↗";
+        font-size: 14px;
+      }
+
+      #metadata > span {
+      }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
@@ -129,7 +170,7 @@
       <span><a class="header" href="/">tphbrok.me</a></span>
     </header>
 
-    <main><article><h1 class="title">Change of scenery, change of mind</h1><ul class="categories">Categories: <li>Thoughts</li></ul>
+    <main><article><h1 class="title">Change of scenery, change of mind</h1><section id="metadata"><span>Published: 2026-07-29</span><span><ul class="categories">Categories: <li>Thoughts</li></ul></span></section>
 <p>I am writing this from some place more than 250 kilometers from home, in a countryside region of the northern part of the Netherlands. My entire life, I have lived not more than 1 kilometer away from a busy highway, which explains the heightened level of awareness I experience here, in the quiet.</p>
 <p>I started reading <i>Fahrenheit 451</i>, which had its backside summary tell me that the book is about books being burned (ironically enough). What stood out to me within the first 30 pages is the vibrant and speech-like storytelling used by the author. One particular paragraph consisted of at least 15 lines of an uninterrupted flow of words, never separated by dots, quotes or dashes. It felt rambly, until the next paragraph explained that the character in question was rambling to himself inside his mind, and cussed himself for it.</p>
 <p>Reading a book which has been written in a very explicit and artistic style is something worth noticing. Books like John Williams' <i>Stoner</i> or Jeff Vandermeer's <i>Annihilation</i> made me feel the same way.</p>

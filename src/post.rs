@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::{collections::HashMap, fs, path};
 
 use crate::template::wrap_in_template;
@@ -117,6 +118,7 @@ impl Post {
 
                 line = replace_styling_with_tags(line, "**", "b");
                 line = replace_styling_with_tags(line, "_", "i");
+                line = replace_links(line);
 
                 let should_close_ul = !line.starts_with("- ") && currently_in_list;
 
@@ -125,22 +127,37 @@ impl Post {
                     line.insert_str(0, "<h1 class=\"title\">");
                     line.push_str("</h1>");
 
-                    let metadata_category = &self.metadata.iter().find(|item| item.0 == "category");
+                    if !self.metadata.is_empty() {
+                        line.push_str("<section id=\"metadata\">");
 
-                    if let Some(metadata_category) = metadata_category {
-                        line.push_str("<ul class=\"categories\">Categories: ");
+                        let metadata_date = &self.metadata.iter().find(|item| item.0 == "date");
 
-                        metadata_category
-                            .1
-                            .split(",")
-                            .map(|category| category.trim())
-                            .for_each(|category| {
-                                line.push_str("<li>");
-                                line.push_str(category);
-                                line.push_str("</li>");
-                            });
+                        if let Some(metadata_date) = metadata_date {
+                            line.push_str(
+                                format!("<span>Published: {}</span>", metadata_date.1).as_str(),
+                            );
+                        }
 
-                        line.push_str("</ul>");
+                        let metadata_category =
+                            &self.metadata.iter().find(|item| item.0 == "category");
+
+                        if let Some(metadata_category) = metadata_category {
+                            line.push_str("<span><ul class=\"categories\">Categories: ");
+
+                            metadata_category
+                                .1
+                                .split(",")
+                                .map(|category| category.trim())
+                                .for_each(|category| {
+                                    line.push_str("<li>");
+                                    line.push_str(category);
+                                    line.push_str("</li>");
+                                });
+
+                            line.push_str("</ul></span>");
+                        }
+
+                        line.push_str("</section>");
                     }
                 } else if line.starts_with("- ") {
                     line = line.replace("- ", "");
@@ -199,4 +216,11 @@ fn replace_styling_with_tags(line: String, source: &str, target: &str) -> String
         })
         .collect::<Vec<String>>()
         .join("")
+}
+
+fn replace_links(line: String) -> String {
+    Regex::new(r"\[([^\]]+)\]\(([^)]+)\)")
+        .unwrap()
+        .replace_all(&line, "<a class=\"article-link\" href=\"$2\">$1</a>")
+        .to_string()
 }
