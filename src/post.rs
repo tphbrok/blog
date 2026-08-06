@@ -14,45 +14,16 @@ pub struct Post {
     pub title: String,
 }
 
-/**
- * TODO:
- * - Make process more forgiving (by not having 'expect's everywhere)
- */
 impl Post {
     pub fn from_path(path: path::PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
-        // Regex::new(r"\[([^\]]+)\]\(([^)]+)\)")
-        // .unwrap()
-        // .replace_all(&line, "<a class=\"article-link\" href=\"$2\">$1</a>")
-        // .to_string()
+        let mut markdown_content = fs::read_to_string(path.clone())?;
 
-        let mut content = fs::read_to_string(path.clone())?;
+        markdown_content = replace_code_blocks(markdown_content);
 
-        let code_block_regex = Regex::new(r"(?m)^```(?:\s*(\w+))?([\s\S]*?)^```$").unwrap();
-
-        code_block_regex
-            .captures_iter(content.clone().as_str())
-            .for_each(|c| {
-                let raw_code_block = c.get(0).unwrap().as_str();
-
-                let syntax_set = SyntaxSet::load_defaults_newlines();
-                let syntax = syntax_set.find_syntax_by_name("Rust").unwrap();
-                let mut html_generator = ClassedHTMLGenerator::new_with_class_style(
-                    syntax,
-                    &syntax_set,
-                    ClassStyle::Spaced,
-                );
-
-                for line in LinesWithEndings::from(raw_code_block) {
-                    html_generator
-                        .parse_html_for_line_which_includes_newline(line)
-                        .unwrap();
-                }
-                let output_html = html_generator.finalize();
-
-                content = content.replace(raw_code_block, output_html.as_str());
-            });
-
-        let mut lines: Vec<String> = content.split("\n").map(|line| line.to_string()).collect();
+        let mut lines: Vec<String> = markdown_content
+            .split("\n")
+            .map(|line| line.to_string())
+            .collect();
 
         let mut metadata: HashMap<String, String> = HashMap::new();
 
@@ -101,18 +72,14 @@ impl Post {
         }
 
         let slug = path
-            .clone()
-            .file_name()
-            .expect("Could not get filename from path")
+            .file_prefix()
+            .expect("Could not get file prefix from path")
             .to_string_lossy()
-            .split(".")
-            .take_while(|word| *word != "md")
-            .collect::<Vec<&str>>()
-            .join("");
+            .into();
 
         let date = metadata
             .get("date")
-            .expect("Could not get date from metadata")
+            .expect("Could not get 'date' from metadata")
             .to_owned();
 
         let title = lines
@@ -133,21 +100,14 @@ impl Post {
     pub fn render_to_file(&self) -> Result<String, Box<dyn std::error::Error>> {
         let output_path = format!("site/{}.html", self.slug);
 
-        let title_line = self
-            .lines
-            .iter()
-            .find(|line| line.starts_with("# "))
-            .expect("Could not find title line (containg '# ')");
-
         let mut currently_in_list = false;
         let mut currently_in_code_block = false;
 
         let mut formatted_lines = self
             .lines
             .iter()
-            .map(|line| {
-                let mut line = line.clone();
-
+            .cloned()
+            .map(|mut line| {
                 let should_close_ul = !line.starts_with("- ") && currently_in_list;
 
                 if currently_in_code_block {
@@ -158,58 +118,65 @@ impl Post {
                     }
 
                     return line;
-                } else if line == "<span class=\"source rust\">```rust" {
-                    currently_in_code_block = true;
-                    return "<pre>".to_string();
-                } else {
-                    line = replace_styling_with_tags(line, "**", "b");
-                    line = replace_styling_with_tags(line, "_", "i");
-                    line = replace_styling_with_tags(line, "`", "code");
-                    line = replace_links(line);
                 }
+
+                if line == "<span class=\"source rust\">```rust" {
+                    currently_in_code_block = true;
+
+                    return "<pre>".to_string();
+                }
+
+                line = replace_styling_with_tags(line, "**", "b");
+                line = replace_styling_with_tags(line, "_", "i");
+                line = replace_styling_with_tags(line, "`", "code");
+                line = replace_links(line);
 
                 if line.starts_with("# ") {
                     line = line.replace("# ", "");
-                    line.insert_str(0, "<h1 class=\"title\">");
-                    line.push_str("</h1>");
+                    line = format!("<h1 class=\"title\">{}</h1>", line);
+
+                    if self.metadata.is_empty() {
+                        return line;
+                    }
 
                     if !self.metadata.is_empty() {
                         line.push_str("<section id=\"metadata\">");
 
-                        let metadata_date = &self.metadata.iter().find(|item| item.0 == "date");
+                        // This array is both a selection and ordering of metadata keys
+                        // to add below the title line
+                        let metadata_keys = ["date", "category"];
 
-                        if let Some(metadata_date) = metadata_date {
-                            line.push_str(
-                                format!("<span>Published: {}</span>", metadata_date.1).as_str(),
+                        for key in metadata_keys {
+                            let value = self.metadata.get(key).expect(
+                                format!("Could not get metadata value for key {}", key).as_str(),
                             );
-                        }
 
-                        let metadata_category =
-                            &self.metadata.iter().find(|item| item.0 == "category");
-
-                        if let Some(metadata_category) = metadata_category {
-                            line.push_str("<span><ul class=\"categories\">Categories: ");
-
-                            metadata_category
-                                .1
-                                .split(",")
-                                .map(|category| category.trim())
-                                .for_each(|category| {
-                                    line.push_str("<li>");
-                                    line.push_str(category);
-                                    line.push_str("</li>");
-                                });
-
-                            line.push_str("</ul></span>");
+                            line.push_str(
+                                format!(
+                                    "<span>{}</span>",
+                                    match key {
+                                        "date" => format!("Published: {}", value.as_str()),
+                                        "category" => format!(
+                                            "Categories: <ul class=\"categories\">{}</ul>",
+                                            value
+                                                .split(",")
+                                                .map(|category| {
+                                                    format!("<li>{}</li>", category.trim())
+                                                })
+                                                .collect::<Vec<String>>()
+                                                .join("")
+                                        ),
+                                        _ => format!(""),
+                                    }
+                                )
+                                .as_str(),
+                            );
                         }
 
                         line.push_str("</section>");
                     }
                 } else if line.starts_with("- ") {
-                    line = line.replace("- ", "");
-
-                    line.insert_str(0, "<li>");
-                    line.push_str("</li>");
+                    line = format!("<li>{}</li>", line.replace("- ", ""));
 
                     if currently_in_list == false {
                         currently_in_list = true;
@@ -217,16 +184,11 @@ impl Post {
                         line.insert_str(0, "<ul class=\"posts-list\">");
                     }
                 } else if line.starts_with("## ") {
-                    line = line.replace("## ", "");
-                    line.insert_str(0, "<h2>");
-                    line.push_str("</h2>");
+                    line = format!("<h2>{}</h2>", line.replace("## ", ""));
                 } else if line.starts_with("### ") {
-                    line = line.replace("### ", "");
-                    line.insert_str(0, "<h3>");
-                    line.push_str("</h3>");
+                    line = format!("<h3>{}</h3>", line.replace("## ", ""));
                 } else {
-                    line.insert_str(0, "<p>");
-                    line.push_str("</p>");
+                    line = format!("<p>{}</p>", line);
 
                     if should_close_ul {
                         line.insert_str(0, "</ul>");
@@ -243,7 +205,7 @@ impl Post {
         formatted_lines.push_str("</article>");
         formatted_lines = formatted_lines.replace("<p></p>", "");
 
-        let output = wrap_in_template(formatted_lines, title_line.replace("# ", ""));
+        let output = wrap_in_template(formatted_lines, self.title.clone());
 
         fs::write(output_path.clone(), output)?;
 
@@ -275,4 +237,30 @@ fn replace_links(line: String) -> String {
         .unwrap()
         .replace_all(&line, "<a class=\"article-link\" href=\"$2\">$1</a>")
         .to_string()
+}
+
+fn replace_code_blocks(mut markdown_content: String) -> String {
+    let code_block_regex = Regex::new(r"(?m)^```(?:\s*(\w+))?([\s\S]*?)^```$").unwrap();
+
+    code_block_regex
+        .captures_iter(markdown_content.clone().as_str())
+        .for_each(|c| {
+            let raw_code_block = c.get(0).unwrap().as_str();
+
+            let syntax_set = SyntaxSet::load_defaults_newlines();
+            let syntax = syntax_set.find_syntax_by_name("Rust").unwrap();
+            let mut html_generator =
+                ClassedHTMLGenerator::new_with_class_style(syntax, &syntax_set, ClassStyle::Spaced);
+
+            for line in LinesWithEndings::from(raw_code_block) {
+                html_generator
+                    .parse_html_for_line_which_includes_newline(line)
+                    .unwrap();
+            }
+            let output_html = html_generator.finalize();
+
+            markdown_content = markdown_content.replace(raw_code_block, output_html.as_str());
+        });
+
+    markdown_content
 }
