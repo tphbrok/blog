@@ -186,7 +186,7 @@ impl Post {
                 } else if line.starts_with("## ") {
                     line = format!("<h2>{}</h2>", line.replace("## ", ""));
                 } else if line.starts_with("### ") {
-                    line = format!("<h3>{}</h3>", line.replace("## ", ""));
+                    line = format!("<h3>{}</h3>", line.replace("### ", ""));
                 } else {
                     line = format!("<p>{}</p>", line);
 
