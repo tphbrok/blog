@@ -5,7 +5,7 @@ superhtml = "0.7.0"
 watchexec = "2.5.1"
 
 [tasks.export]
-run = "cargo run"
+run = "cargo run && npx prettier --write site/*.html"
 
 [tasks.watch]
-run = "watchexec -w posts -w src -- mise export && npx prettier --write site/*.html"
+run = "watchexec -w posts -w src -- mise export"
