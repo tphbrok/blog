@@ -92,6 +92,11 @@
         font-size: 20px;
       }
 
+      h3 {
+        font-size: 16px;
+        margin-bottom: 0px;
+      }
+
       .categories {
         list-style: none;
         display: inline-flex;
@@ -166,6 +171,77 @@
         content: " ↗";
         font-size: 14px;
       }
+
+      pre,
+      code {
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      pre {
+        background-color: rgb(from var(--color-white) r g b / 10%);
+        padding: 16px;
+        border-radius: 8px;
+      }
+
+      code {
+        background-color: rgb(from var(--color-white) r g b / 10%);
+        padding: 3px 6px;
+        border-radius: 8px;
+      }
+
+      pre span.type {
+        /* color: rgb(from var(--color-primary) r g b / 100%); */
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 90%,
+          var(--color-white) 10%
+        );
+      }
+
+      pre span.modifier,
+      pre span.keyword,
+      pre span.storage {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 50%,
+          var(--color-white) 50%
+        );
+      }
+
+      pre span.name {
+        color: white;
+      }
+
+      pre span.support.function {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 80%,
+          var(--color-white) 20%
+        );
+      }
+
+      pre {
+        overflow-x: scroll;
+        width: calc(100% - 32px);
+      }
+
+      pre span.comment {
+        color: rgb(from var(--color-white) r g b / 50%);
+      }
+
+      pre span.variable {
+        color: color-mix(
+          in srgb,
+          yellow 80%,
+          var(--color-primary) 20%,
+          var(--color-white) 60%
+        );
+      }
+
+      p:has(+ pre) {
+        margin-bottom: 0px;
+      }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
@@ -174,6 +250,6 @@
       <span><a class="header" href="/">tphbrok.me</a></span>
     </header>
 
-    <main><h1>Posts</h1><h2 class="posts-year">2026</h2><ul class="posts-list"><li><a href="audiodevlog-2.html">audiodevlog 002: Project refinements</a> (2026-07-30)</li><li><a href="change-of-scenery-change-of-mind.html">Change of scenery, change of mind</a> (2026-07-29)</li><li><a href="audiodevlog-1.html">audiodevlog 001: Introduction</a> (2026-07-27)</li><li><a href="choose-your-forever-game.html">Choose your forever game</a> (2026-07-21)</li></ul></main>
+    <main><h1>Posts</h1><h2 class="posts-year">2026</h2><ul class="posts-list"><li><a href="audiodevlog-3.html">audiodevlog 003: Writing generators for Disperse</a> (2026-08-06)</li><li><a href="audiodevlog-2.html">audiodevlog 002: Project refinements</a> (2026-07-30)</li><li><a href="change-of-scenery-change-of-mind.html">Change of scenery, change of mind</a> (2026-07-29)</li><li><a href="audiodevlog-1.html">audiodevlog 001: Introduction</a> (2026-07-27)</li><li><a href="choose-your-forever-game.html">Choose your forever game</a> (2026-07-21)</li></ul></main>
   </body>
 </html>

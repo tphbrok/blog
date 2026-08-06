@@ -1,5 +1,8 @@
 use regex::Regex;
 use std::{collections::HashMap, fs, path};
+use syntect::html::{ClassStyle, ClassedHTMLGenerator};
+use syntect::parsing::SyntaxSet;
+use syntect::util::LinesWithEndings;
 
 use crate::template::wrap_in_template;
 
@@ -17,11 +20,39 @@ pub struct Post {
  */
 impl Post {
     pub fn from_path(path: path::PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut lines: Vec<String> = fs::read_to_string(path.clone())?
-            .split("\n")
-            .filter(|line| line.len() > 0)
-            .map(|line| line.to_string())
-            .collect();
+        // Regex::new(r"\[([^\]]+)\]\(([^)]+)\)")
+        // .unwrap()
+        // .replace_all(&line, "<a class=\"article-link\" href=\"$2\">$1</a>")
+        // .to_string()
+
+        let mut content = fs::read_to_string(path.clone())?;
+
+        let code_block_regex = Regex::new(r"(?m)^```(?:\s*(\w+))?([\s\S]*?)^```$").unwrap();
+
+        code_block_regex
+            .captures_iter(content.clone().as_str())
+            .for_each(|c| {
+                let raw_code_block = c.get(0).unwrap().as_str();
+
+                let syntax_set = SyntaxSet::load_defaults_newlines();
+                let syntax = syntax_set.find_syntax_by_name("Rust").unwrap();
+                let mut html_generator = ClassedHTMLGenerator::new_with_class_style(
+                    syntax,
+                    &syntax_set,
+                    ClassStyle::Spaced,
+                );
+
+                for line in LinesWithEndings::from(raw_code_block) {
+                    html_generator
+                        .parse_html_for_line_which_includes_newline(line)
+                        .unwrap();
+                }
+                let output_html = html_generator.finalize();
+
+                content = content.replace(raw_code_block, output_html.as_str());
+            });
+
+        let mut lines: Vec<String> = content.split("\n").map(|line| line.to_string()).collect();
 
         let mut metadata: HashMap<String, String> = HashMap::new();
 
@@ -109,6 +140,7 @@ impl Post {
             .expect("Could not find title line (containg '# ')");
 
         let mut currently_in_list = false;
+        let mut currently_in_code_block = false;
 
         let mut formatted_lines = self
             .lines
@@ -116,11 +148,25 @@ impl Post {
             .map(|line| {
                 let mut line = line.clone();
 
-                line = replace_styling_with_tags(line, "**", "b");
-                line = replace_styling_with_tags(line, "_", "i");
-                line = replace_links(line);
-
                 let should_close_ul = !line.starts_with("- ") && currently_in_list;
+
+                if currently_in_code_block {
+                    if line.ends_with("```</span>") {
+                        currently_in_code_block = false;
+
+                        return "</pre>".to_string();
+                    }
+
+                    return line;
+                } else if line == "<span class=\"source rust\">```rust" {
+                    currently_in_code_block = true;
+                    return "<pre>".to_string();
+                } else {
+                    line = replace_styling_with_tags(line, "**", "b");
+                    line = replace_styling_with_tags(line, "_", "i");
+                    line = replace_styling_with_tags(line, "`", "code");
+                    line = replace_links(line);
+                }
 
                 if line.starts_with("# ") {
                     line = line.replace("# ", "");
@@ -174,6 +220,10 @@ impl Post {
                     line = line.replace("## ", "");
                     line.insert_str(0, "<h2>");
                     line.push_str("</h2>");
+                } else if line.starts_with("### ") {
+                    line = line.replace("### ", "");
+                    line.insert_str(0, "<h3>");
+                    line.push_str("</h3>");
                 } else {
                     line.insert_str(0, "<p>");
                     line.push_str("</p>");
@@ -190,6 +240,7 @@ impl Post {
 
         formatted_lines.insert_str(0, "<article>");
         formatted_lines.push_str("</article>");
+        formatted_lines = formatted_lines.replace("<p></p>", "");
 
         let output = wrap_in_template(formatted_lines, title_line.replace("# ", ""));
 

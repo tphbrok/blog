@@ -1,0 +1,374 @@
+<html>
+  <head>
+    <title>audiodevlog 003: Writing generators for Disperse - tphbrok.me</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --color-primary: rgb(194, 104, 1);
+        --color-black: rgb(39, 39, 35);
+        --color-white: rgb(240, 240, 225);
+      }
+
+      @media (prefers-color-scheme: light) {
+        body {
+          background-color: var(--color-white);
+          color: var(--color-black);
+        }
+
+        #metadata > span {
+          background-color: rgb(from var(--color-black) r g b / 10%);
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: var(--color-black);
+          color: var(--color-white);
+        }
+
+        #metadata > span {
+          background-color: rgb(from var(--color-white) r g b / 10%);
+        }
+      }
+
+      a {
+        color: var(--color-primary);
+      }
+
+      a.header {
+        color: unset;
+      }
+
+      body {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          sans-serif,
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          Segoe UI Symbol,
+          "Noto Color Emoji";
+
+        max-width: 960px;
+        padding: 0 16px;
+        margin: 0 auto;
+        font-size: 16px;
+      }
+
+      body > * {
+        margin: 16px 0;
+        padding-bottom: 16px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      header > span {
+        padding-bottom: 0;
+        font-weight: bold;
+      }
+
+      article p,
+      article h2 {
+        margin-bottom: 32px;
+      }
+
+      .posts-year {
+        margin-top: 32px;
+      }
+
+      p {
+        line-height: 28px;
+      }
+
+      h1 {
+        font-size: 36px;
+        letter-spacing: -1px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      h3 {
+        font-size: 16px;
+        margin-bottom: 0px;
+      }
+
+      .categories {
+        list-style: none;
+        display: inline-flex;
+        column-gap: 4px;
+        padding-left: 0;
+        align-items: center;
+        margin: 0px;
+        flex-wrap: wrap;
+        height: fit-content;
+        row-gap: 4px;
+        width: fit-content;
+      }
+
+      #metadata {
+        font-size: 14px;
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+        flex-wrap: wrap;
+        /* height: fit-content; */
+        padding-top: 16px;
+        row-gap: 8px;
+      }
+
+      #metadata * {
+        white-space: nowrap;
+      }
+
+      #metadata > span {
+        padding: 6px 10px;
+        border-radius: 10px;
+        height: fit-content;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      #metadata > span:has(.categories) {
+        padding-right: 5px;
+      }
+
+      .categories > li {
+        background-color: rgb(from var(--color-primary) r g b / 75%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--color-white);
+      }
+
+      .title:has(+ #metadata) {
+        margin-bottom: 0px;
+      }
+
+      h1.name {
+        font-size: 48px;
+      }
+
+      .posts-list {
+        margin-bottom: 32px;
+      }
+
+      .posts-list li {
+        margin-bottom: 8px;
+        line-height: 28px;
+      }
+
+      p:has(+ ul) {
+        margin-bottom: 0px;
+      }
+
+      .article-link::after {
+        content: " ↗";
+        font-size: 14px;
+      }
+
+      pre,
+      code {
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      pre {
+        background-color: rgb(from var(--color-white) r g b / 10%);
+        padding: 16px;
+        border-radius: 8px;
+      }
+
+      code {
+        background-color: rgb(from var(--color-white) r g b / 10%);
+        padding: 3px 6px;
+        border-radius: 8px;
+      }
+
+      pre span.type {
+        /* color: rgb(from var(--color-primary) r g b / 100%); */
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 90%,
+          var(--color-white) 10%
+        );
+      }
+
+      pre span.modifier,
+      pre span.keyword,
+      pre span.storage {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 50%,
+          var(--color-white) 50%
+        );
+      }
+
+      pre span.name {
+        color: white;
+      }
+
+      pre span.support.function {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 80%,
+          var(--color-white) 20%
+        );
+      }
+
+      pre {
+        overflow-x: scroll;
+        width: calc(100% - 32px);
+      }
+
+      pre span.comment {
+        color: rgb(from var(--color-white) r g b / 50%);
+      }
+
+      pre span.variable {
+        color: color-mix(
+          in srgb,
+          yellow 80%,
+          var(--color-primary) 20%,
+          var(--color-white) 60%
+        );
+      }
+
+      p:has(+ pre) {
+        margin-bottom: 0px;
+      }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <header>
+      <span><a class="header" href="/">tphbrok.me</a></span>
+    </header>
+
+    <main><article>
+<h1 class="title">audiodevlog 003: Writing generators for Disperse</h1><section id="metadata"><span>Published: 2026-08-06</span><span><ul class="categories">Categories: <li>Audio software</li></ul></span></section>
+
+<p>I started writing this post mere seconds after pushing the latest commit of the day to the <a class="article-link" href="https://github.com/tphbrok/disperse">Disperse</a> repository, so that all things I have learned are still fresh in memory.</p>
+
+<p>The first piece of code I committed was a white noise generator function, which simply returned a random <code>f32</code> value between -1.0 and 1.0. I then made it into a stateful <code>struct</code>, so it could reuse the thread-local generator for improved performance in returning random values. Its function <code>get&lowbar;next&lowbar;value</code> returns the next random value from the already initialized random number generator.</p>
+
+<pre>
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> white_noise.rs
+</span>
+<span class="keyword other rust">use</span> <span class="meta path rust">rand<span class="punctuation accessor rust">::</span></span><span class="meta block rust"><span class="punctuation section block begin rust">{</span>RngExt<span class="punctuation separator rust">,</span> rng<span class="punctuation separator rust">,</span> <span class="meta path rust">rngs<span class="punctuation accessor rust">::</span></span>ThreadRng</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span><span class="punctuation terminator rust">;</span>
+
+<span class="keyword other rust">use</span> <span class="keyword other rust">crate</span><span class="meta path rust"><span class="punctuation accessor rust">::</span></span><span class="meta path rust">generators<span class="punctuation accessor rust">::</span></span><span class="meta path rust">generator<span class="punctuation accessor rust">::</span></span>Generator<span class="punctuation terminator rust">;</span>
+
+<span class="meta struct rust"><span class="storage modifier rust">pub</span> <span class="storage type struct rust">struct</span> </span><span class="meta struct rust"><span class="entity name struct rust">WhiteNoise</span> </span><span class="meta struct rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="variable other member rust">rng</span><span class="punctuation separator rust">:</span> ThreadRng,
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+
+<span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust"><span class="entity name impl rust">WhiteNoise</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="meta function rust"><span class="meta function rust"><span class="storage modifier rust">pub</span> <span class="storage type function rust">fn</span> </span><span class="entity name function rust">new</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> <span class="meta function return-type rust"><span class="punctuation separator rust">-&gt;</span> <span class="storage type rust">Self</span></span> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+        WhiteNoise <span class="meta block rust"><span class="punctuation section block begin rust">{</span> rng<span class="punctuation separator rust">:</span> <span class="support function rust">rng</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span>
+    </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+
+<span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">WhiteNoise</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">get_next_value</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span><span class="keyword operator rust">&amp;</span><span class="storage modifier rust">mut</span> <span class="variable parameter rust">self</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> <span class="meta function return-type rust"><span class="punctuation separator rust">-&gt;</span> <span class="storage type rust">f32</span></span> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+        <span class="variable language rust">self</span>.rng.<span class="support function rust">random</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>
+    </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</pre>
+
+<p>Then, I built a <code>Sine</code> generator, which 'ticked' its phase to the next value (dependent on its frequency), so the next call to <code>get&lowbar;next&lowbar;value</code> neatly returns the next value in line. A more functional approach would be to make the phase part of the caller, but the entire point of theses stateful generator structs is to simplify writing and using generators. Moreover, a typical synthesizer has stateful oscillators, where an incoming MIDI note may or may not 'retrigger' the oscillator back to phase 0.</p>
+
+<p>That's when I started noticing a pattern among the two generators (the <code>get&lowbar;next&lowbar;value</code> function) and extracted it into a <code>Generator</code> trait, which should be implemented by any generator.</p>
+
+<pre>
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> sine.rs (partial)
+</span>
+<span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">Sine</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">get_next_value</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span><span class="keyword operator rust">&amp;</span><span class="storage modifier rust">mut</span> <span class="variable parameter rust">self</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> <span class="meta function return-type rust"><span class="punctuation separator rust">-&gt;</span> <span class="storage type rust">f32</span></span> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+        <span class="storage type rust">let</span> phase_increment <span class="keyword operator rust">=</span> <span class="variable language rust">self</span>.frequency <span class="keyword operator rust">/</span> <span class="variable language rust">self</span>.sample_rate<span class="punctuation terminator rust">;</span>
+        <span class="storage type rust">let</span> new_phase <span class="keyword operator rust">=</span> <span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="variable language rust">self</span>.phase <span class="keyword operator rust">+</span> phase_increment</span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="keyword operator rust">%</span> <span class="constant numeric float rust">1.</span><span class="constant numeric float rust">0</span><span class="punctuation terminator rust">;</span>
+
+        <span class="storage type rust">let</span> next_value <span class="keyword operator rust">=</span> <span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="variable language rust">self</span>.phase <span class="keyword operator rust">*</span> <span class="constant numeric float rust">2.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">*</span> <span class="constant other rust">PI</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>.<span class="support function rust">sin</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+        <span class="variable language rust">self</span>.phase <span class="keyword operator rust">=</span> new_phase<span class="punctuation terminator rust">;</span>
+
+        next_value
+    </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</pre>
+
+<p>After that, I followed up with a <code>Triangle</code> and a <code>Sawtooth</code> generator. All generators are covered by unit tests, except for the white noise one, because I can't think of a way to reliably test random data.</p>
+
+<h3>Mathematics become much simpler and more correct when minimizing usage of &#960; in calculations</h3>
+
+<p>The number &#960; is a pretty complex number, and performing <code>float</code> calculations mostly leads to inaccuracies. I doubt that anyone would hear the difference between an audio output level of 0.25 or 0.2499999, but if there's some calculation ordering or simplifications I can do to make it more accurate (without sacrificing performance), I went with it.</p>
+
+<p>Also, I started out calculating the current phase of a generator over a range of [0, 2&#960;), but that meant I had to use calculations with &#960; in conditional expressions (e.g. for a triangle generator, where the waveform increases to 1 over [0, &#960;/2), decreases to -1 over [&#960;/2, 3&#960;/2) and returns to 0 towards 2&#960;). That meant the value at exactly &#960;/2 was sometimes exactly equal to 1, and sometimes it was not.</p>
+
+<p>The resulting implementation of the <code>Generator</code> trait was much more satisfying than before:</p>
+
+<pre>
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> triangle.rs (partial)
+</span>
+<span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">Triangle</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">get_next_value</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span><span class="keyword operator rust">&amp;</span><span class="storage modifier rust">mut</span> <span class="variable parameter rust">self</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> <span class="meta function return-type rust"><span class="punctuation separator rust">-&gt;</span> <span class="storage type rust">f32</span></span> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+        <span class="storage type rust">let</span> phase_increment <span class="keyword operator rust">=</span> <span class="variable language rust">self</span>.frequency <span class="keyword operator rust">/</span> <span class="variable language rust">self</span>.sample_rate<span class="punctuation terminator rust">;</span>
+        <span class="storage type rust">let</span> new_phase <span class="keyword operator rust">=</span> <span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="variable language rust">self</span>.phase <span class="keyword operator rust">+</span> phase_increment</span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="keyword operator rust">%</span> <span class="constant numeric float rust">1.</span><span class="constant numeric float rust">0</span><span class="punctuation terminator rust">;</span>
+
+        <span class="storage type rust">let</span> next_value <span class="keyword operator rust">=</span> <span class="keyword control rust">if</span> <span class="variable language rust">self</span>.phase <span class="keyword operator rust">&gt;</span><span class="keyword operator rust">=</span> <span class="constant numeric float rust">0.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">&amp;</span><span class="keyword operator rust">&amp;</span> <span class="variable language rust">self</span>.phase <span class="keyword operator rust">&lt;</span> <span class="constant numeric float rust">0.</span><span class="constant numeric float rust">25</span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+            <span class="variable language rust">self</span>.phase
+        </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span> <span class="keyword control rust">else</span> <span class="keyword control rust">if</span> <span class="variable language rust">self</span>.phase <span class="keyword operator rust">&gt;</span><span class="keyword operator rust">=</span> <span class="constant numeric float rust">0.</span><span class="constant numeric float rust">75</span> <span class="keyword operator rust">&amp;</span><span class="keyword operator rust">&amp;</span> <span class="variable language rust">self</span>.phase <span class="keyword operator rust">&lt;</span> <span class="constant numeric float rust">1.</span><span class="constant numeric float rust">0</span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+            <span class="variable language rust">self</span>.phase <span class="keyword operator rust">-</span> <span class="constant numeric float rust">1.</span><span class="constant numeric float rust">0</span>
+        </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span> <span class="keyword control rust">else</span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+            <span class="constant numeric float rust">0.</span><span class="constant numeric float rust">5</span> <span class="keyword operator rust">-</span> <span class="variable language rust">self</span>.phase
+        </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span> <span class="keyword operator rust">*</span> <span class="constant numeric float rust">4.</span><span class="constant numeric float rust">0</span><span class="punctuation terminator rust">;</span>
+        <span class="variable language rust">self</span>.phase <span class="keyword operator rust">=</span> new_phase<span class="punctuation terminator rust">;</span>
+
+        next_value
+    </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</pre>
+
+<p>The unit tests for the triangle generator, that I copied from the sine generator, also became much better. Before, I had to use a certain <i>tolerance</i> for output inaccuracies, because the values could deviate by 0.000001.</p>
+
+<pre>
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> Before
+</span>
+<span class="meta annotation rust"><span class="punctuation definition annotation rust">#</span><span class="punctuation section group begin rust">[</span><span class="variable annotation rust">cfg</span><span class="meta annotation parameters rust"><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span></span><span class="meta annotation parameters rust"><span class="meta group rust">test</span></span><span class="meta annotation parameters rust"><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="punctuation section group end rust">]</span></span>
+<span class="meta module rust"><span class="storage type module rust">mod</span> <span class="entity name module rust">tests</span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="keyword other rust">use</span> <span class="meta path rust"><span class="keyword other rust">super</span><span class="punctuation accessor rust">::</span></span><span class="keyword operator rust">*</span><span class="punctuation terminator rust">;</span>
+
+    <span class="meta annotation rust"><span class="punctuation definition annotation rust">#</span><span class="punctuation section group begin rust">[</span><span class="variable annotation rust">test</span><span class="punctuation section group end rust">]</span></span>
+    <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">it_generates_correct_values</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+        <span class="storage type rust">let</span> <span class="storage modifier rust">mut</span> triangle <span class="keyword operator rust">=</span> <span class="meta path rust">Triangle<span class="punctuation accessor rust">::</span></span>new<span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">44100.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">/</span> <span class="constant numeric float rust">8.</span><span class="constant numeric float rust">0</span><span class="punctuation separator rust">,</span> <span class="constant numeric integer decimal rust">44100</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+        <span class="support macro rust">assert!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">0.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">-</span> triangle.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>.<span class="support function rust">abs</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="keyword operator rust">&lt;</span> 1e<span class="keyword operator rust">-</span><span class="constant numeric integer decimal rust">6</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+        <span class="support macro rust">assert!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">0.</span><span class="constant numeric float rust">5</span> <span class="keyword operator rust">-</span> triangle.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>.<span class="support function rust">abs</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="keyword operator rust">&lt;</span> 1e<span class="keyword operator rust">-</span><span class="constant numeric integer decimal rust">6</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+        <span class="support macro rust">assert!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">1.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">-</span> triangle.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>.<span class="support function rust">abs</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="keyword operator rust">&lt;</span> 1e<span class="keyword operator rust">-</span><span class="constant numeric integer decimal rust">6</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+    </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> After
+</span>
+<span class="meta annotation rust"><span class="punctuation definition annotation rust">#</span><span class="punctuation section group begin rust">[</span><span class="variable annotation rust">cfg</span><span class="meta annotation parameters rust"><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span></span><span class="meta annotation parameters rust"><span class="meta group rust">test</span></span><span class="meta annotation parameters rust"><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="punctuation section group end rust">]</span></span>
+<span class="meta module rust"><span class="storage type module rust">mod</span> <span class="entity name module rust">tests</span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="keyword other rust">use</span> <span class="meta path rust"><span class="keyword other rust">super</span><span class="punctuation accessor rust">::</span></span><span class="keyword operator rust">*</span><span class="punctuation terminator rust">;</span>
+
+    <span class="meta annotation rust"><span class="punctuation definition annotation rust">#</span><span class="punctuation section group begin rust">[</span><span class="variable annotation rust">test</span><span class="punctuation section group end rust">]</span></span>
+    <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">it_generates_correct_values</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+        <span class="storage type rust">let</span> <span class="storage modifier rust">mut</span> triangle <span class="keyword operator rust">=</span> <span class="meta path rust">Triangle<span class="punctuation accessor rust">::</span></span>new<span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">44100.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">/</span> <span class="constant numeric float rust">8.</span><span class="constant numeric float rust">0</span><span class="punctuation separator rust">,</span> <span class="constant numeric integer decimal rust">44100</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+        <span class="support macro rust">assert_eq!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">0.</span><span class="constant numeric float rust">0</span><span class="punctuation separator rust">,</span> triangle.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+        <span class="support macro rust">assert_eq!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">0.</span><span class="constant numeric float rust">5</span><span class="punctuation separator rust">,</span> triangle.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+        <span class="support macro rust">assert_eq!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="constant numeric float rust">1.</span><span class="constant numeric float rust">0</span><span class="punctuation separator rust">,</span> triangle.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+    </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+
+</pre>
+</article></main>
+  </body>
+</html>
