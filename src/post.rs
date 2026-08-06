@@ -4,6 +4,8 @@ use syntect::html::{ClassStyle, ClassedHTMLGenerator};
 use syntect::parsing::SyntaxSet;
 use syntect::util::LinesWithEndings;
 
+use crate::template::wrap_in_template;
+
 pub struct Post {
     pub date: String,
     pub lines: Vec<String>,
@@ -273,12 +275,4 @@ fn replace_links(line: String) -> String {
         .unwrap()
         .replace_all(&line, "<a class=\"article-link\" href=\"$2\">$1</a>")
         .to_string()
-}
-
-fn wrap_in_template(content: String, title: String) -> String {
-    let template = fs::read_to_string("src/template.html").expect("Failed to read template");
-
-    template
-        .replace("{{title}}", format!("{} - tphbrok.me", title).as_str())
-        .replace("{{content}}", content.as_str())
 }
