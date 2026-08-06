@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     posts.iter().take(5).for_each(|post| {
         homepage_content.push_str(
             format!(
-                "<li><a href=\"{}.html\">{}</a> ({})</li>",
+                "<li><a href=\"{}.html\">{}</a><br>({})</li>",
                 post.slug, post.title, post.date
             )
             .as_str(),
@@ -69,7 +69,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         posts.iter().for_each(|post| {
             posts_content.push_str(
                 format!(
-                    "<li><a href=\"{}.html\">{}</a> ({})</li>",
+                    "<li><a href=\"{}.html\">{}</a><br>({})</li>",
                     post.slug, post.title, post.date
                 )
                 .as_str(),
