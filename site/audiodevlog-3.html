@@ -250,14 +250,40 @@
       <span><a class="header" href="/">tphbrok.me</a></span>
     </header>
 
-    <main><article>
-<h1 class="title">audiodevlog 003: Writing generators for Disperse</h1><section id="metadata"><span>Published: 2026-08-06</span><span><ul class="categories">Categories: <li>Audio software</li></ul></span></section>
+    <main>
+      <article>
+        <h1 class="title">audiodevlog 003: Writing generators for Disperse</h1>
+        <section id="metadata">
+          <span>Published: 2026-08-06</span
+          ><span
+            ><ul class="categories">
+              Categories:
+              <li>Audio software</li>
+            </ul></span
+          >
+        </section>
 
-<p>I started writing this post mere seconds after pushing the latest commit of the day to the <a class="article-link" href="https://github.com/tphbrok/disperse">Disperse</a> repository, so that all things I have learned are still fresh in memory.</p>
+        <p>
+          I started writing this post mere seconds after pushing the latest
+          commit of the day to the
+          <a class="article-link" href="https://github.com/tphbrok/disperse"
+            >Disperse</a
+          >
+          repository, so that all things I have learned are still fresh in
+          memory.
+        </p>
 
-<p>The first piece of code I committed was a white noise generator function, which simply returned a random <code>f32</code> value between -1.0 and 1.0. I then made it into a stateful <code>struct</code>, so it could reuse the thread-local generator for improved performance in returning random values. Its function <code>get&lowbar;next&lowbar;value</code> returns the next random value from the already initialized random number generator.</p>
+        <p>
+          The first piece of code I committed was a white noise generator
+          function, which simply returned a random <code>f32</code> value
+          between -1.0 and 1.0. I then made it into a stateful
+          <code>struct</code>, so it could reuse the thread-local generator for
+          improved performance in returning random values. Its function
+          <code>get&lowbar;next&lowbar;value</code> returns the next random
+          value from the already initialized random number generator.
+        </p>
 
-<pre>
+        <pre>
 <span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> white_noise.rs
 </span>
 <span class="keyword other rust">use</span> <span class="meta path rust">rand<span class="punctuation accessor rust">::</span></span><span class="meta block rust"><span class="punctuation section block begin rust">{</span>RngExt<span class="punctuation separator rust">,</span> rng<span class="punctuation separator rust">,</span> <span class="meta path rust">rngs<span class="punctuation accessor rust">::</span></span>ThreadRng</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span><span class="punctuation terminator rust">;</span>
@@ -281,11 +307,25 @@
 </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
 </pre>
 
-<p>Then, I built a <code>Sine</code> generator, which 'ticked' its phase to the next value (dependent on its frequency), so the next call to <code>get&lowbar;next&lowbar;value</code> neatly returns the next value in line. A more functional approach would be to make the phase part of the caller, but the entire point of theses stateful generator structs is to simplify writing and using generators. Moreover, a typical synthesizer has stateful oscillators, where an incoming MIDI note may or may not 'retrigger' the oscillator back to phase 0.</p>
+        <p>
+          Then, I built a <code>Sine</code> generator, which 'ticked' its phase
+          to the next value (dependent on its frequency), so the next call to
+          <code>get&lowbar;next&lowbar;value</code> neatly returns the next
+          value in line. A more functional approach would be to make the phase
+          part of the caller, but the entire point of theses stateful generator
+          structs is to simplify writing and using generators. Moreover, a
+          typical synthesizer has stateful oscillators, where an incoming MIDI
+          note may or may not 'retrigger' the oscillator back to phase 0.
+        </p>
 
-<p>That's when I started noticing a pattern among the two generators (the <code>get&lowbar;next&lowbar;value</code> function) and extracted it into a <code>Generator</code> trait, which should be implemented by any generator.</p>
+        <p>
+          That's when I started noticing a pattern among the two generators (the
+          <code>get&lowbar;next&lowbar;value</code> function) and extracted it
+          into a <code>Generator</code> trait, which should be implemented by
+          any generator.
+        </p>
 
-<pre>
+        <pre>
 <span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> sine.rs (partial)
 </span>
 <span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">Sine</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
@@ -301,17 +341,43 @@
 </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
 </pre>
 
-<p>After that, I followed up with a <code>Triangle</code> and a <code>Sawtooth</code> generator. All generators are covered by unit tests, except for the white noise one, because I can't think of a way to reliably test random data.</p>
+        <p>
+          After that, I followed up with a <code>Triangle</code> and a
+          <code>Sawtooth</code> generator. All generators are covered by unit
+          tests, except for the white noise one, because I can't think of a way
+          to reliably test random data.
+        </p>
 
-<h3>Mathematics become much simpler and more correct when minimizing usage of &#960; in calculations</h3>
+        <h3>
+          Mathematics become much simpler and more correct when minimizing usage
+          of &#960; in calculations
+        </h3>
 
-<p>The number &#960; is a pretty complex number, and performing <code>float</code> calculations mostly leads to inaccuracies. I doubt that anyone would hear the difference between an audio output level of 0.25 or 0.2499999, but if there's some calculation ordering or simplifications I can do to make it more accurate (without sacrificing performance), I went with it.</p>
+        <p>
+          The number &#960; is a pretty complex number, and performing
+          <code>float</code> calculations mostly leads to inaccuracies. I doubt
+          that anyone would hear the difference between an audio output level of
+          0.25 or 0.2499999, but if there's some calculation ordering or
+          simplifications I can do to make it more accurate (without sacrificing
+          performance), I went with it.
+        </p>
 
-<p>Also, I started out calculating the current phase of a generator over a range of [0, 2&#960;), but that meant I had to use calculations with &#960; in conditional expressions (e.g. for a triangle generator, where the waveform increases to 1 over [0, &#960;/2), decreases to -1 over [&#960;/2, 3&#960;/2) and returns to 0 towards 2&#960;). That meant the value at exactly &#960;/2 was sometimes exactly equal to 1, and sometimes it was not.</p>
+        <p>
+          Also, I started out calculating the current phase of a generator over
+          a range of [0, 2&#960;), but that meant I had to use calculations with
+          &#960; in conditional expressions (e.g. for a triangle generator,
+          where the waveform increases to 1 over [0, &#960;/2), decreases to -1
+          over [&#960;/2, 3&#960;/2) and returns to 0 towards 2&#960;). That
+          meant the value at exactly &#960;/2 was sometimes exactly equal to 1,
+          and sometimes it was not.
+        </p>
 
-<p>The resulting implementation of the <code>Generator</code> trait was much more satisfying than before:</p>
+        <p>
+          The resulting implementation of the <code>Generator</code> trait was
+          much more satisfying than before:
+        </p>
 
-<pre>
+        <pre>
 <span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> triangle.rs (partial)
 </span>
 <span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">Triangle</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
@@ -333,9 +399,14 @@
 </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
 </pre>
 
-<p>The unit tests for the triangle generator, that I copied from the sine generator, also became much better. Before, I had to use a certain <i>tolerance</i> for output inaccuracies, because the values could deviate by 0.000001.</p>
+        <p>
+          The unit tests for the triangle generator, that I copied from the sine
+          generator, also became much better. Before, I had to use a certain
+          <i>tolerance</i> for output inaccuracies, because the values could
+          deviate by 0.000001.
+        </p>
 
-<pre>
+        <pre>
 <span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> Before
 </span>
 <span class="meta annotation rust"><span class="punctuation definition annotation rust">#</span><span class="punctuation section group begin rust">[</span><span class="variable annotation rust">cfg</span><span class="meta annotation parameters rust"><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span></span><span class="meta annotation parameters rust"><span class="meta group rust">test</span></span><span class="meta annotation parameters rust"><span class="meta group rust"><span class="punctuation section group end rust">)</span></span></span><span class="punctuation section group end rust">]</span></span>
@@ -369,6 +440,7 @@
 </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
 
 </pre>
-</article></main>
+      </article>
+    </main>
   </body>
 </html>

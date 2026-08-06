@@ -230,6 +230,7 @@ impl Post {
 
                     if should_close_ul {
                         line.insert_str(0, "</ul>");
+                        currently_in_list = false;
                     }
                 }
 
