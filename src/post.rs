@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::fmt::format;
 use std::{collections::HashMap, fs, path};
 use syntect::html::{ClassStyle, ClassedHTMLGenerator};
 use syntect::parsing::SyntaxSet;
@@ -132,15 +133,10 @@ impl Post {
                 line = replace_links(line);
 
                 if line.starts_with("# ") {
-                    line = line.replace("# ", "");
-                    line = format!("<h1 class=\"title\">{}</h1>", line);
-
-                    if self.metadata.is_empty() {
-                        return line;
-                    }
+                    line = format!("<h1 class=\"title\">{}</h1>", self.title);
 
                     if !self.metadata.is_empty() {
-                        line.push_str("<section id=\"metadata\">");
+                        let mut metadata = String::from("");
 
                         // This array is both a selection and ordering of metadata keys
                         // to add below the title line
@@ -151,7 +147,7 @@ impl Post {
                                 format!("Could not get metadata value for key {}", key).as_str(),
                             );
 
-                            line.push_str(
+                            metadata.push_str(
                                 format!(
                                     "<span>{}</span>",
                                     match key {
@@ -173,7 +169,7 @@ impl Post {
                             );
                         }
 
-                        line.push_str("</section>");
+                        return format!("<section id=\"metadata\">{}</section>", metadata);
                     }
                 } else if line.starts_with("- ") {
                     line = format!("<li>{}</li>", line.replace("- ", ""));
