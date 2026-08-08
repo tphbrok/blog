@@ -1,5 +1,4 @@
 use regex::Regex;
-use std::fmt::format;
 use std::{collections::HashMap, fs, path};
 use syntect::html::{ClassStyle, ClassedHTMLGenerator};
 use syntect::parsing::SyntaxSet;
