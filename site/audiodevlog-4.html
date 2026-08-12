@@ -1,0 +1,401 @@
+<html>
+  <head>
+    <title>
+      audiodevlog 004: Creating an example and getting an audio backend to work
+      - tphbrok.me
+    </title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --color-primary: rgb(194, 104, 1);
+        --color-black: rgb(39, 39, 35);
+        --color-white: rgb(240, 240, 225);
+      }
+
+      @media (prefers-color-scheme: light) {
+        body {
+          background-color: var(--color-white);
+          color: var(--color-black);
+        }
+
+        #metadata > span {
+          background-color: rgb(from var(--color-black) r g b / 10%);
+        }
+
+        pre {
+          background-color: rgb(from var(--color-primary) r g b / 5%);
+        }
+
+        pre span.comment {
+          color: rgb(from var(--color-black) r g b / 50%);
+        }
+
+        pre span.name {
+          color: rgb(from var(--color-primary) r g b / 100%);
+        }
+
+        pre span.variable {
+          color: color-mix(
+            in srgb,
+            yellow 70%,
+            var(--color-primary) 40%,
+            var(--color-black) 20%
+          );
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: var(--color-black);
+          color: var(--color-white);
+        }
+
+        #metadata > span {
+          background-color: rgb(from var(--color-white) r g b / 10%);
+        }
+
+        pre {
+          background-color: rgb(from var(--color-white) r g b / 10%);
+        }
+
+        pre span.comment {
+          color: rgb(from var(--color-white) r g b / 50%);
+        }
+
+        pre span.name {
+          color: white;
+        }
+
+        pre span.variable {
+          color: color-mix(
+            in srgb,
+            yellow 80%,
+            var(--color-primary) 20%,
+            var(--color-white) 60%
+          );
+        }
+      }
+
+      a {
+        color: var(--color-primary);
+      }
+
+      a.header {
+        color: unset;
+      }
+
+      body {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          sans-serif,
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          Segoe UI Symbol,
+          "Noto Color Emoji";
+
+        max-width: 960px;
+        padding: 0 16px;
+        margin: 0 auto;
+        font-size: 16px;
+      }
+
+      body > * {
+        margin: 16px 0;
+        padding-bottom: 16px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      header > span {
+        padding-bottom: 0;
+        font-weight: bold;
+      }
+
+      article p,
+      article h2 {
+        margin-bottom: 32px;
+      }
+
+      .posts-year {
+        margin-top: 32px;
+      }
+
+      p {
+        line-height: 28px;
+      }
+
+      h1 {
+        font-size: 36px;
+        letter-spacing: -1px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      h3 {
+        font-size: 16px;
+        margin-bottom: 0px;
+      }
+
+      .categories {
+        list-style: none;
+        display: inline-flex;
+        column-gap: 4px;
+        padding-left: 4px;
+        align-items: center;
+        margin: 0px;
+        flex-wrap: wrap;
+        height: fit-content;
+        row-gap: 4px;
+        width: fit-content;
+      }
+
+      #metadata {
+        font-size: 14px;
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        column-gap: 8px;
+        flex-wrap: wrap;
+        /* height: fit-content; */
+        padding-top: 16px;
+        row-gap: 8px;
+      }
+
+      #metadata * {
+        white-space: nowrap;
+      }
+
+      #metadata > span {
+        padding: 6px 10px;
+        border-radius: 10px;
+        height: fit-content;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      #metadata > span:has(.categories) {
+        padding-right: 5px;
+      }
+
+      .categories > li {
+        background-color: rgb(from var(--color-primary) r g b / 75%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--color-white);
+      }
+
+      .title:has(+ #metadata) {
+        margin-bottom: 0px;
+      }
+
+      h1.name {
+        font-size: 48px;
+      }
+
+      .posts-list {
+        margin-bottom: 32px;
+      }
+
+      .posts-list li {
+        margin-bottom: 8px;
+        line-height: 28px;
+      }
+
+      p:has(+ ul) {
+        margin-bottom: 0px;
+      }
+
+      .article-link::after {
+        content: " ↗";
+        font-size: 14px;
+      }
+
+      pre,
+      code {
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      pre {
+        padding: 16px;
+        border-radius: 8px;
+      }
+
+      code {
+        background-color: rgb(from var(--color-white) r g b / 10%);
+        padding: 3px 6px;
+        border-radius: 8px;
+      }
+
+      pre span.type {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 90%,
+          var(--color-white) 10%
+        );
+      }
+
+      pre span.modifier,
+      pre span.keyword,
+      pre span.storage {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 50%,
+          var(--color-white) 50%
+        );
+      }
+
+      pre span.support.function {
+        color: color-mix(
+          in srgb,
+          var(--color-primary) 80%,
+          var(--color-white) 20%
+        );
+      }
+
+      pre {
+        overflow-x: auto;
+        width: calc(100% - 32px);
+      }
+
+      p:has(+ pre) {
+        margin-bottom: 0px;
+      }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <header>
+      <span><a class="header" href="/">tphbrok.me</a></span>
+    </header>
+
+    <main>
+      <article>
+        <h1 class="title">
+          audiodevlog 004: Creating an example and getting an audio backend to
+          work
+        </h1>
+        <section id="metadata">
+          <span>Published: 2026-08-12</span
+          ><span
+            >Categories:
+            <ul class="categories">
+              <li>Audio software</li>
+            </ul></span
+          >
+        </section>
+
+        <p>
+          Having written a few generators, it was time to put them to practice,
+          since unit tests can't prevent something from sounding bad.
+        </p>
+
+        <p>
+          I created an example <code>rising&lowbar;sine</code> which creates a
+          <code>Sine</code> generator, fills an <code>f32</code> vector of 44100
+          samples with that generator, and increases the frequency by 100 Hz
+          over those 44100 samples. The sampling frequency has thoughtfully been
+          set to 44100 samples per second.
+        </p>
+
+        <pre>
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> examples/rising_sine.rs
+</span>
+<span class="keyword other rust">use</span> <span class="meta path rust">disperse<span class="punctuation accessor rust">::</span></span><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    backends<span class="punctuation separator rust">,</span>
+    <span class="meta path rust">generators<span class="punctuation accessor rust">::</span></span><span class="meta block rust"><span class="punctuation section block begin rust">{</span><span class="meta path rust">generator<span class="punctuation accessor rust">::</span></span>Generator<span class="punctuation separator rust">,</span> <span class="meta path rust">sine<span class="punctuation accessor rust">::</span></span>Sine</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span><span class="punctuation separator rust">,</span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span><span class="punctuation terminator rust">;</span>
+
+<span class="comment block documentation rust"><span class="punctuation definition comment rust">/**
+</span> * Plays a sine for 1 second, while linearly increasing its frequency from 440 to 540
+ <span class="punctuation definition comment rust">*/</span></span>
+<span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">main</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+    <span class="storage type rust">let</span> <span class="storage modifier rust">mut</span> frequency <span class="keyword operator rust">=</span> <span class="constant numeric float rust">440.</span><span class="constant numeric float rust">0</span><span class="punctuation terminator rust">;</span>
+    <span class="storage type rust">let</span> <span class="storage modifier rust">mut</span> sine <span class="keyword operator rust">=</span> <span class="meta path rust">Sine<span class="punctuation accessor rust">::</span></span>new<span class="meta group rust"><span class="punctuation section group begin rust">(</span>frequency<span class="punctuation separator rust">,</span> <span class="constant numeric integer decimal rust">44100</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+    <span class="storage type rust">let</span> samples <span class="keyword operator rust">=</span> <span class="support macro rust">vec!</span><span class="meta group rust"><span class="punctuation section group begin rust">[</span><span class="constant numeric float rust">0.</span><span class="constant numeric float rust">0</span><span class="punctuation separator rust">;</span> <span class="constant numeric integer decimal rust">44100</span><span class="punctuation section group end rust">]</span></span>
+        .<span class="support function rust">iter</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>
+        .<span class="support function rust">map</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="meta function closure rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">|</span></span></span><span class="meta function closure rust"><span class="meta function parameters rust">_<span class="punctuation section parameters end rust">|</span></span> </span><span class="meta function closure rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+            sine.<span class="support function rust">set_frequency</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span>frequency</span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+            <span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> Make it rise 100 Hz over the span of 44100 samples
+</span>            frequency <span class="keyword operator rust">=</span> frequency <span class="keyword operator rust">+</span> <span class="constant numeric float rust">100.</span><span class="constant numeric float rust">0</span> <span class="keyword operator rust">/</span> <span class="constant numeric float rust">44100.</span><span class="constant numeric float rust">0</span><span class="punctuation terminator rust">;</span>
+
+            sine.<span class="support function rust">get_next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>
+        </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>
+        .<span class="support function rust">collect</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+    <span class="meta path rust">backends<span class="punctuation accessor rust">::</span></span><span class="meta path rust">cpal<span class="punctuation accessor rust">::</span></span>play_samples<span class="meta group rust"><span class="punctuation section group begin rust">(</span>samples</span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span></span>
+</pre>
+
+        <p>
+          Running this example with
+          <code>cargo run --example rising&lowbar;sine</code> satsifyingly plays
+          exactly what I expected.
+        </p>
+
+        <p>
+          I did run into an issue with <code>cpal</code> though, where it simply
+          didn't call the provided <code>data&lowbar;callback</code>, which
+          should write the samples into an audio output buffer.
+        </p>
+
+        <pre>
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> src/backends/cpal.rs (partial)
+</span>
+<span class="storage type rust">let</span> stream <span class="keyword operator rust">=</span> device
+    .<span class="support function rust">build_output_stream</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span>
+        config.<span class="support function rust">into</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation separator rust">,</span>
+        <span class="storage modifier rust">move</span> <span class="keyword operator rust">|</span>data<span class="punctuation separator rust">:</span> <span class="keyword operator rust">&amp;</span><span class="storage modifier rust">mut</span> <span class="meta group rust"><span class="punctuation section group begin rust">[</span><span class="storage type rust">f32</span><span class="punctuation section group end rust">]</span></span><span class="punctuation separator rust">,</span> <span class="keyword operator rust">_</span><span class="keyword operator rust">|</span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+            <span class="keyword control rust">for</span> frame <span class="keyword operator rust">in</span> data.<span class="support function rust">chunks_mut</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span>channels</span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+                <span class="storage type rust">let</span> value <span class="keyword operator rust">=</span> <span class="support function rust">next_value</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+                <span class="keyword control rust">for</span> sample <span class="keyword operator rust">in</span> frame.<span class="support function rust">iter_mut</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span> <span class="meta block rust"><span class="punctuation section block begin rust">{</span>
+                    <span class="keyword operator rust">*</span>sample <span class="keyword operator rust">=</span> value<span class="punctuation terminator rust">;</span>
+                </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span>
+            </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span>
+        </span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span><span class="punctuation separator rust">,</span>
+        <span class="meta function closure rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">|</span></span></span><span class="meta function closure rust"><span class="meta function parameters rust"><span class="variable parameter rust">err</span><span class="punctuation section parameters end rust">|</span></span> </span><span class="meta function closure rust"><span class="support macro rust">eprintln!</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span><span class="string quoted double rust"><span class="punctuation definition string begin rust">&quot;</span>{err}<span class="punctuation definition string end rust">&quot;</span></span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation separator rust">,</span>
+        <span class="support type rust">None</span><span class="punctuation separator rust">,</span>
+    </span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> Nothing happens here!
+</span>stream.<span class="support function rust">unwrap</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>.<span class="support function rust">play</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span>.<span class="support function rust">unwrap</span><span class="meta group rust"><span class="punctuation section group begin rust">(</span></span><span class="meta group rust"><span class="punctuation section group end rust">)</span></span><span class="punctuation terminator rust">;</span>
+</pre>
+
+        <p>
+          The solution was moving an <code>unwrap()</code> call from the line
+          that tries to <code>play()</code> the stream to the line that creates
+          the stream. The reason is not unwrapping a
+          <code>build&lowbar;output&lowbar;stream</code> call immediately drops
+          the handle to the <code>cpal::Stream</code>, which results in
+          <code>stream.play()</code> not doing anything nor erroring.
+        </p>
+
+        <p>
+          While I have my default search engine set to DuckDuckGo, it was Google
+          that showed me
+          <a
+            class="article-link"
+            href="https://github.com/RustAudio/cpal/issues/790"
+            >this 3 year old GitHub issue</a
+          >
+          as its top search result, whereas DuckDuckGo failed to give me the
+          results I needed to fix this (with the same prompt used for both
+          searches). As an EU citizen, I'm all for using software that isn't
+          part of <i>Big Tech&trade;</i>, but every now and then stuff like this
+          happens, making me feel funny on the inside
+          <code>¯\&lowbar;(ツ)&lowbar;/¯</code>.
+        </p>
+      </article>
+    </main>
+  </body>
+</html>

@@ -168,7 +168,7 @@ impl Post {
                             );
                         }
 
-                        return format!("<section id=\"metadata\">{}</section>", metadata);
+                        return format!("{line}<section id=\"metadata\">{metadata}</section>");
                     }
                 } else if line.starts_with("- ") {
                     line = format!("<li>{}</li>", line.replace("- ", ""));

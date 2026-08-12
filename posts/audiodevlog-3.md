@@ -10,7 +10,7 @@ I started writing this post mere seconds after pushing the latest commit of the 
 The first piece of code I committed was a white noise generator function, which simply returned a random `f32` value between -1.0 and 1.0. I then made it into a stateful `struct`, so it could reuse the thread-local generator for improved performance in returning random values. Its function `get&lowbar;next&lowbar;value` returns the next random value from the already initialized random number generator.
 
 ```rust
-// white_noise.rs
+// src/generators/white_noise.rs
 
 use rand::{RngExt, rng, rngs::ThreadRng};
 
@@ -38,7 +38,7 @@ Then, I built a `Sine` generator, which 'ticked' its phase to the next value (de
 That's when I started noticing a pattern among the two generators (the `get&lowbar;next&lowbar;value` function) and extracted it into a `Generator` trait, which should be implemented by any generator.
 
 ```rust
-// sine.rs (partial)
+// src/generators/sine.rs (partial)
 
 impl Generator for Sine {
     fn get_next_value(&mut self) -> f32 {
@@ -64,7 +64,7 @@ Also, I started out calculating the current phase of a generator over a range of
 The resulting implementation of the `Generator` trait was much more satisfying than before:
 
 ```rust
-// triangle.rs (partial)
+// src/generators/triangle.rs (partial)
 
 impl Generator for Triangle {
     fn get_next_value(&mut self) -> f32 {

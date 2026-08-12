@@ -258,7 +258,7 @@
       }
 
       pre {
-        overflow-x: scroll;
+        overflow-x: auto;
         width: calc(100% - 32px);
       }
 
@@ -307,7 +307,7 @@
         </p>
 
         <pre>
-<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> white_noise.rs
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> src/generators/white_noise.rs
 </span>
 <span class="keyword other rust">use</span> <span class="meta path rust">rand<span class="punctuation accessor rust">::</span></span><span class="meta block rust"><span class="punctuation section block begin rust">{</span>RngExt<span class="punctuation separator rust">,</span> rng<span class="punctuation separator rust">,</span> <span class="meta path rust">rngs<span class="punctuation accessor rust">::</span></span>ThreadRng</span><span class="meta block rust"><span class="punctuation section block end rust">}</span></span><span class="punctuation terminator rust">;</span>
 
@@ -349,7 +349,7 @@
         </p>
 
         <pre>
-<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> sine.rs (partial)
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> src/generators/sine.rs (partial)
 </span>
 <span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">Sine</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
     <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">get_next_value</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span><span class="keyword operator rust">&amp;</span><span class="storage modifier rust">mut</span> <span class="variable parameter rust">self</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> <span class="meta function return-type rust"><span class="punctuation separator rust">-&gt;</span> <span class="storage type rust">f32</span></span> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
@@ -401,7 +401,7 @@
         </p>
 
         <pre>
-<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> triangle.rs (partial)
+<span class="comment line double-slash rust"><span class="punctuation definition comment rust">//</span> src/generators/triangle.rs (partial)
 </span>
 <span class="meta impl rust"><span class="storage type impl rust">impl</span> </span><span class="meta impl rust">Generator <span class="keyword other rust">for</span></span><span class="meta impl rust"> <span class="entity name impl rust">Triangle</span> </span><span class="meta impl rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
     <span class="meta function rust"><span class="meta function rust"><span class="storage type function rust">fn</span> </span><span class="entity name function rust">get_next_value</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters begin rust">(</span><span class="keyword operator rust">&amp;</span><span class="storage modifier rust">mut</span> <span class="variable parameter rust">self</span></span><span class="meta function rust"><span class="meta function parameters rust"><span class="punctuation section parameters end rust">)</span></span></span></span><span class="meta function rust"> <span class="meta function return-type rust"><span class="punctuation separator rust">-&gt;</span> <span class="storage type rust">f32</span></span> </span><span class="meta function rust"><span class="meta block rust"><span class="punctuation section block begin rust">{</span>
